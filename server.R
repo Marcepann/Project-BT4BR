@@ -1,12 +1,13 @@
-library(shiny)
-library(shinydashboard)
-
 server <- function(input, output) {
   output$hist <- renderPlot({
-    hist(rnorm(input$n), col = "#007ACC", border = "white")
+    hist(rnorm(input$n), main = "Histogram", col = "#1E90FF", border = "white")
   })
   
-  output$infoBoxObs <- renderInfoBox({
-    infoBox("Cool stuff", input$n, icon = icon("list"), color = "blue")
+  output$infoBoxObs <- renderUI({
+    div(
+      class = "well",
+      h4("Info box"),
+      p(paste("Number of observations:", input$n))
+    )
   })
 }
