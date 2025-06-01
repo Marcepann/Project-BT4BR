@@ -11,145 +11,85 @@ ui <- tagList(
   themeSelector(),
   navbarPage("BT4BR project", id = "main_navbar",   # title on the left side of our page
              tabPanel("Description",
-                      mainPanel(
-                               wellPanel(
-                                 h3("What is this project about?"),
-                                 p("It's a really really cool project, please grade it well :D")
-                               )
+                      tags$div(
+                        style = "max-width: 800px; margin: auto; padding: 20px; font-size: 16px",
+                        
+                        wellPanel(
+                          tags$details(
+                            tags$summary(tags$b("▼ Introduction")),
+                            br(),
+                            p("This interactive application was created by a group of 3 bioinformatics students finishing their 3rd year of a bachelor's degree. It was developed as part of the course Basic Toolkit 4 Bioinformatics Research. The app was built using R Shiny (shinythemes) and uses packages such as markdown, plotly, readr and dplyr.")
+                          )
+                        ),
+                        
+                        wellPanel(
+                          tags$details(
+                            tags$summary(tags$b("▼ Goals of our project")),
+                            br(),
+                            p("The main goal of this project was to help us learn how to build interactive applications using real data. We chose to focus on the import and export of ingredients found in popular national dishes - such as pierogi from Poland or lecso from Hungary - and present this information in a more engaging and unconventional way.")
+                          )
+                        ),
+                        
+                        wellPanel(
+                          tags$details(
+                            tags$summary(tags$b("▼ What can I find here?")),
+                            br(),
+                            p("The application allows users select a dish and view interactive visualisations specific to that dish."),
+                            br(),
+                            p("It contains five main tabs:"),
+                            tags$ul(
+                              tags$li(tags$b("Description")),
+                              p("This is the first tab that appears after launching the app. It gives an overview of the project and serves as the welcome page. It is the tab that you are currently in."),
+                              tags$li(tags$b("Dishes")),
+                              p("Here you will find interactive buttons with images and names of various dishes from around the world. When you click on a dish, you’ll be taken to the Graphs tab."),
+                              tags$li(tags$b("Graphs")),
+                              p("At first, this tab is empty. Once a dish is selected, two interactive graphs will be displayed: a choropleth map and a line chart, each in a separate subtab. You can interact with the graphs by selecting:"),
+                              tags$ul(
+                                tags$li("ingredient"),
+                                tags$li("country"),
+                                tags$li("type of data (export or import)"),
+                                tags$li("year or a range of years (with a map animation showing how values change over time)")
+                              ),
+                              br(),
+                              p("Furthermore, the selected dish image and the flag of the country of origin are displayed. On the map, the country of origin is also highlighted with a red border."),
+                              tags$li(tags$b("About us")),
+                              p("In this tab you can see how we divided the work within our team. There are also buttons to download the code parts used for generating the graphs."),
+                              tags$li(tags$b("Resources")),
+                              p("This tab lists all the websites we used when building the app.")
+                            )
+                          )
+                        )
                       )
              ),
              
              tabPanel("Dishes",
                       fluidPage(
                         fluidRow(
-                          column(3,
-                                 actionButton("Bibimbap",
-                                              tagList(
-                                                img(src = "Bibimbap.jpg", width = "100%"),
-                                                h4("Bibimbap")
-                                              )
-                                 )
-                          ),
-                          column(3,
-                                 actionButton("Biryani",
-                                              tagList(
-                                                img(src = "Biryani.jpg", width = "100%"),
-                                                h4("Biryani")
-                                              )
-                                 )
-                          ),
-                          column(3,
-                                 actionButton("Bratwurst with sauerkraut",
-                                              tagList(
-                                                img(src = "Bratwurst with sauerkraut.jpg", width = "100%"),
-                                                h4("Bratwurst with sauerkraut", style = "white-space: normal; width: 100%")
-                                              )
-                                 )
-                          ),
-                          column(3,
-                                 actionButton("Carbonara",
-                                              tagList(
-                                                img(src = "Carbonara.jpg", width = "100%"),
-                                                h4("Carbonara")
-                                              )
-                                 )
-                          ),
-                          column(3,
-                                 actionButton("Falafel",
-                                              tagList(
-                                                img(src = "Falafel.jpg", width = "100%"),
-                                                h4("Falafel")
-                                              )
-                                 )
-                          ),
-                          column(3,
-                                   actionButton("Kebab",
-                                                tagList(
-                                                  img(src = "Kebab.jpg", width = "100%"),
-                                                  h4("Kebab")
-                                                )
-                                   )
-                          ),
-                          column(3,
-                                 actionButton("Kimchi",
-                                              tagList(
-                                                img(src = "Kimchi.jpg", width = "100%"),
-                                                h4("Kimchi")
-                                              )
-                                 )
-                          ),
-                          column(3,
-                                 actionButton("Lecso",
-                                              tagList(
-                                                img(src = "Lecso.jpg", width = "100%"),
-                                                h4("Lecso")
-                                              )
-                                 )
-                          ),
-                          column(3,
-                                 actionButton("Moules-frites",
-                                              tagList(
-                                                img(src = "Moules-frites.jpg", width = "100%"),
-                                                h4("Moules-frites")
-                                              )
-                                 )
-                          ),
-                          column(3,
-                                 actionButton("Moussaka",
-                                              tagList(
-                                                img(src = "Moussaka.jpg", width = "100%"),
-                                                h4("Moussaka")
-                                              )
-                                 )
-                          ),
-                          column(3,
-                                 actionButton("Pad thai",
-                                              tagList(
-                                                img(src = "Pad thai.jpg", width = "100%"),
-                                                h4("Pad thai")
-                                              )
-                                 )
-                          ),
-                          column(3,
-                                 actionButton("Pierogi",
-                                              tagList(
-                                                img(src = "Pierogi.jpeg", width = "100%"),
-                                                h4("Pierogi")
-                                              )
-                                 )
-                          ),
-                          column(3,
-                                 actionButton("Sarma",
-                                              tagList(
-                                                img(src = "Sarma.jpg", width = "100%"),
-                                                h4("Sarma")
-                                              )
-                                 )
-                          ),
-                          column(3,
-                                 actionButton("Schabowy with potatoes and mizeria",
-                                              tagList(
-                                                img(src = "Schabowy with potatoes and mizeria.webp", width = "100%"),
-                                                h4("Schabowy with potatoes and mizeria", style = "white-space: normal; width: 100%")
-                                              )
-                                 )
-                          ),
-                          column(3,
-                                 actionButton("Spaghetti bolognese",
-                                              tagList(
-                                                img(src = "Spaghetti bolognese.jpg", width = "100%"),
-                                                h4("Spaghetti bolognese")
-                                              )
-                                 )
-                          ),
-                          column(3,
-                                 actionButton("Sushi",
-                                              tagList(
-                                                img(src = "Sushi.jpg", width = "100%"),
-                                                h4("Sushi")
-                                              )
-                                 )
-                          )
+                          column(3, actionButton("Bibimbap", tagList(img(src = "Bibimbap.jpg", width = "100%"), h4("Bibimbap")))),
+                          column(3, actionButton("Biryani", tagList(img(src = "Biryani.jpg", width = "100%"), h4("Biryani")))),
+                          column(3, actionButton("Bratwurst with sauerkraut", tagList(img(src = "Bratwurst with sauerkraut.jpg", width = "100%"), h4("Bratwurst with sauerkraut", style = "white-space: normal; width: 100%")))),
+                          column(3, actionButton("Carbonara", tagList(img(src = "Carbonara.jpg", width = "100%"), h4("Carbonara"))))
+                        ),
+                        br(),
+                        fluidRow(
+                          column(3, actionButton("Falafel", tagList(img(src = "Falafel.jpg", width = "100%"), h4("Falafel")))),
+                          column(3, actionButton("Kebab", tagList(img(src = "Kebab.jpg", width = "100%"), h4("Kebab")))),
+                          column(3, actionButton("Kimchi", tagList(img(src = "Kimchi.jpg", width = "100%"), h4("Kimchi")))),
+                          column(3, actionButton("Lecso", tagList(img(src = "Lecso.jpg", width = "100%"), h4("Lecso"))))
+                        ),
+                        br(),
+                        fluidRow(
+                          column(3, actionButton("Moules-frites", tagList(img(src = "Moules-frites.jpg", width = "100%"), h4("Moules-frites")))),
+                          column(3, actionButton("Moussaka", tagList(img(src = "Moussaka.jpg", width = "100%"), h4("Moussaka")))),
+                          column(3, actionButton("Pad thai", tagList(img(src = "Pad thai.jpg", width = "100%"), h4("Pad thai")))),
+                          column(3, actionButton("Pierogi", tagList(img(src = "Pierogi.jpeg", width = "100%"), h4("Pierogi"))))
+                        ),
+                        br(),
+                        fluidRow(
+                          column(3, actionButton("Sarma", tagList(img(src = "Sarma.jpg", width = "100%"), h4("Sarma")))),
+                          column(3, actionButton("Schabowy with potatoes and mizeria", tagList(img(src = "Schabowy with potatoes and mizeria.webp", width = "100%"), h4("Schabowy with potatoes and mizeria", style = "white-space: normal; width: 100%")))),
+                          column(3, actionButton("Spaghetti bolognese", tagList(img(src = "Spaghetti bolognese.jpg", width = "100%"), h4("Spaghetti bolognese")))),
+                          column(3, actionButton("Sushi", tagList(img(src = "Sushi.jpg", width = "100%"), h4("Sushi"))))
                         ),
                         hr(),
                         uiOutput("plot_ui")

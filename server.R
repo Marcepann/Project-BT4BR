@@ -292,7 +292,7 @@ server <- function(input, output, session) {
     country_name <- tools::file_path_sans_ext(basename(flag_filename))
     if (country_name == "South Korea")
     {
-      country_name = "Democratic People's Republic of Korea"
+      country_name = "Republic of Korea"
     }
     country_name
   }
