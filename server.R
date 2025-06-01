@@ -73,8 +73,9 @@ server <- function(input, output, session) {
   
   # rendering a map
   output$worldMap <- renderPlotly({
-    req(input$map_ingredient, input$year, input$map_element)
+    req(input$map_ingredient, input$year, input$map_element, selected_dish())
     
+    # Dane do mapy
     filtered <- df() %>%
       filter(Item == input$map_ingredient,
              Year == input$year,
@@ -82,14 +83,34 @@ server <- function(input, output, session) {
              !is.na(Value),
              !is.na(iso3))
     
+    # Kraj pochodzenia potrawy
+    origin_country <- get_country_from_dish(selected_dish())
+    origin_country_iso3 <- countrycode(origin_country, origin = "country.name", destination = "iso3c")
+    
+    # Dane z wartością tylko dla tego kraju
+    highlight_df <- data.frame(
+      iso3 = origin_country_iso3,
+      highlight = 1
+    )
+    
     plot_geo(filtered) %>%
       add_trace(
         z = ~Value,
         color = ~Value,
         colors = "Blues",
         text = ~paste(Area, "<br>", Value, "t"),
+        hoverinfo = "text",
         locations = ~iso3,
         marker = list(line = list(color = "gray", width = 0.5))
+      ) %>%
+      add_trace(
+        type = "choropleth",
+        locations = highlight_df$iso3,
+        z = highlight_df$highlight,
+        showscale = FALSE,
+        colorscale = list(c(0, 1), c("rgba(0,0,0,0)", "rgba(0,0,0,0)")),  # przezroczyste tło
+        marker = list(line = list(color = "red", width = 1)),
+        hoverinfo = "none"
       ) %>%
       colorbar(title = "Quantity (t)") %>%
       layout(
@@ -153,7 +174,7 @@ server <- function(input, output, session) {
     
     if (input$plot_ingredient == "All ingredients") {
       p <- ggplot(filtered, aes(x = Year, y = Value, color = Item)) +
-        geom_line(size = 0.6) +
+        geom_line(linewidth = 0.6) +
         geom_point(size = 1.5) +
         scale_color_manual(values = colors_of_ingredients) +
         labs(
@@ -176,7 +197,7 @@ server <- function(input, output, session) {
       }
       
       p <- ggplot(filtered, aes(x = Year, y = Value, color = Item)) +
-        geom_line(size = 0.6) +
+        geom_line(linewidth = 0.6) +
         geom_point(size = 1.5) +
         scale_color_manual(values = colors_of_ingredients) +
         labs(
@@ -264,4 +285,15 @@ server <- function(input, output, session) {
     img_src <- dish_image_paths[[selected_dish()]]$flag
     img(src = img_src, width = "100%")
   })
+  
+  # Pomocnicza funkcja do wyciągania kraju z nazwy pliku flagi
+  get_country_from_dish <- function(dish) {
+    flag_filename <- dish_image_paths[[dish]]$flag
+    country_name <- tools::file_path_sans_ext(basename(flag_filename))
+    if (country_name == "South Korea")
+    {
+      country_name = "Democratic People's Republic of Korea"
+    }
+    country_name
+  }
 }

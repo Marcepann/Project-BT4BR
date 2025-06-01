@@ -1,3 +1,5 @@
+install.packages(c("plotly", "shiny", "readr", "dplyr", "countrycode"))
+
 library(shiny)
 library(plotly)
 library(readr)
@@ -5,7 +7,7 @@ library(dplyr)
 library(countrycode)
 
 
-df <- read_csv("spaghetti_swiat.csv")
+df <- read_csv("Bratwurst with sauerkraut.csv")
 df$iso3 <- countrycode(df$Area, origin = "country.name", destination = "iso3c")
 
 
@@ -61,6 +63,7 @@ server <- function(input, output, session) {
         color = ~Value,
         colors = "Blues",
         text = ~paste(Area, "<br>", Value, "t"),
+        hoverinfo = "text",
         locations = ~iso3,
         marker = list(line = list(color = "gray", width = 0.5))
       ) %>%
@@ -70,8 +73,8 @@ server <- function(input, output, session) {
         geo = list(
           showframe = FALSE,
           showcoastlines = FALSE,
-          showcountries = TRUE,  # fixing non-visible countries
-          countrycolor = "gray",  # colour of non-visible countries outline
+          showcountries = TRUE,
+          countrycolor = "gray",
           projection = list(type = 'equirectangular')
         ),
         margin = list(t = 80, b = 0, l = 0, r = 0)

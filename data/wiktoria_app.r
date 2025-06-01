@@ -6,7 +6,7 @@ library(countrycode)
 library(RColorBrewer)
 library(hrbrthemes)
 
-table <- read_csv("spaghetti_swiat.csv")
+table <- read_csv("Bratwurst with sauerkraut.csv")
 
 # UI
 ui <- fluidPage(
