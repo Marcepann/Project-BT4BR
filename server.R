@@ -1,20 +1,41 @@
 server <- function(input, output, session) {
-  # needed data
-  df <- read_csv("spaghetti_swiat.csv")
-  df$iso3 <- countrycode(df$Area, origin = "country.name", destination = "iso3c", warn = FALSE)
+  # opening the right csv files
+  selected_dish <- reactiveVal(NULL)
+  
+  dish_data <- reactive({
+    req(selected_dish())
+    filepath <- paste0("data/", selected_dish(), ".csv")
+    read.csv(filepath)
+  })
+  
+  df <- reactive({
+    req(dish_data())
+    data <- dish_data()
+    data$iso3 <- countrycode(as.character(data$Area), origin = "country.name", destination = "iso3c", warn = FALSE)
+    data
+  })
+  
+  observeEvent(df(), {
+    updateSelectInput(session, "map_ingredient", choices = unique(df()$Item), selected = unique(df()$Item)[1])
+    updateSelectInput(session, "map_element", choices = unique(df()$Element), selected = unique(df()$Element)[1])
+    
+    updateSelectInput(session, "plot_ingredient", choices = c("All ingredients", sort(unique(df()$Item))), selected = "All ingredients")
+    updateSelectInput(session, "plot_element", choices = unique(df()$Element), selected = unique(df()$Element)[1])
+    updateSelectInput(session, "country", choices = unique(df()$Area), selected = unique(df()$Area)[1])
+  })
   
   # ===========================================================================
   # KASIA'S PART
   # choosing ingredient
   observe({
-    updateSelectInput(session, "map_ingredient", choices = unique(df$Item))
+    updateSelectInput(session, "map_ingredient", choices = unique(df()$Item))
   })
   
   # choosing a year
   output$map_year_ui <- renderUI({
     req(input$map_ingredient, input$map_element)
     
-    available_years <- df %>%
+    available_years <- df() %>%
       filter(Item == input$map_ingredient,
              Element == input$map_element,
              !is.na(Value)) %>%
@@ -35,7 +56,7 @@ server <- function(input, output, session) {
   observeEvent(c(input$map_ingredient, input$map_element), {
     req(input$map_ingredient, input$map_element)
     
-    available_years <- df %>%
+    available_years <- df() %>%
       filter(Item == input$map_ingredient,
              Element == input$map_element,
              !is.na(Value)) %>%
@@ -54,7 +75,7 @@ server <- function(input, output, session) {
   output$worldMap <- renderPlotly({
     req(input$map_ingredient, input$year, input$map_element)
     
-    filtered <- df %>%
+    filtered <- df() %>%
       filter(Item == input$map_ingredient,
              Year == input$year,
              Element == input$map_element,
@@ -86,13 +107,13 @@ server <- function(input, output, session) {
   # ===========================================================================
   # WIKTORIA'S PART
   observe({
-    ingredients <- sort(unique(df$Item))
+    ingredients <- sort(unique(df()$Item))
     updateSelectInput(session, "plot_ingredient", choices = c("All ingredients", ingredients))
-    updateSelectInput(session, "country", choices = unique(df$Area))
+    updateSelectInput(session, "country", choices = unique(df()$Area))
   })
   
   output$plot_year_ui <- renderUI({
-    available_years <- df %>%
+    available_years <- df() %>%
       filter(
         Area == input$country,
         Item == input$plot_ingredient | input$plot_ingredient == "All ingredients",
@@ -118,11 +139,11 @@ server <- function(input, output, session) {
     req(input$plot_ingredient, input$country, input$plot_element, input$years)
     
     colors_of_ingredients <- setNames(
-      colorRampPalette(brewer.pal(8, "Paired"))(length(unique(df$Item))),
-      sort(unique(df$Item))
+      colorRampPalette(brewer.pal(8, "Paired"))(length(unique(df()$Item))),
+      sort(unique(df()$Item))
     )
     
-    filtered <- df %>%
+    filtered <- df() %>%
       filter(
         Area == input$country,
         Element == input$plot_element,
@@ -142,7 +163,7 @@ server <- function(input, output, session) {
         theme_minimal()
     } 
     else {
-      filtered <- df %>%
+      filtered <- df() %>%
         filter(
           Area == input$country,
           Element == input$plot_element,
@@ -169,24 +190,78 @@ server <- function(input, output, session) {
       layout(hovermode = "x unified")
   })
   # ===========================================================================
+  # making button to download Kasia's code
   output$downloadKasiaApp <- downloadHandler(
     filename = function() {
-      "kasia_app.r"
+      "data/kasia_app.r"
     },
     content = function(file) {
-      file.copy("kasia_app.r", file)
+      file.copy("data/kasia_app.r", file)
     },
     contentType = "text/plain"
   )
   
+  # making button to download Wiktoria's code
   output$downloadWikiApp <- downloadHandler(
     filename = function() {
-      "wiktoria_app.r"
+      "data/wiktoria_app.r"
     },
     content = function(file) {
-      file.copy("wiktoria_app.r", file)
+      file.copy("data/wiktoria_app.r", file)
     },
     contentType = "text/plain"
   )
   
+  # list of dishes and flags
+  dish_image_paths <- list(
+    "Bibimbap" = list(flag = "South Korea.png", dish = "Bibimbap.jpg"),
+    "Biryani" = list(flag = "India.png", dish = "Biryani.jpg"),
+    "Bratwurst with sauerkraut" = list(flag = "Germany.png", dish = "Bratwurst with sauerkraut.jpg"),
+    "Carbonara" = list(flag = "Italy.png", dish = "Carbonara.jpg"),
+    "Falafel" = list(flag = "Egypt.png", dish = "Falafel.jpg"),
+    "Kebab" = list(flag = "Turkey.svg", dish = "Kebab.jpg"),
+    "Kimchi" = list(flag = "South Korea.png", dish = "Kimchi.jpg"),
+    "Lecso" = list(flag = "Hungary.png", dish = "Lecso.jpg"),
+    "Moules-frites" = list(flag = "Belgium.png", dish = "Moules-frites.jpg"),
+    "Moussaka" = list(flag = "Greece.png", dish = "Moussaka.jpg"),
+    "Pad thai" = list(flag = "Thailand.png", dish = "Pad thai.jpg"),
+    "Pierogi" = list(flag = "Poland.png", dish = "Pierogi.jpeg"),
+    "Sarma" = list(flag = "Turkey.svg", dish = "Sarma.jpg"),
+    "Schabowy with potatoes and mizeria" = list(flag = "Poland.png", dish = "Schabowy with potatoes and mizeria.webp"),
+    "Spaghetti bolognese" = list(flag = "Italy.png", dish = "Spaghetti bolognese.jpg"),
+    "Sushi" = list(flag = "Japan.png", dish = "Sushi.jpg")
+  )
+  
+  # generating food buttons
+  lapply(names(dish_image_paths), function(dish) {
+    observeEvent(input[[dish]], {
+      selected_dish(dish)
+      updateNavbarPage(session, inputId = "main_navbar", selected = "Graphs")
+    })
+  })
+  
+  # inserting images into the tabpanel
+  output$map_dish_image <- renderUI({
+    req(selected_dish())
+    img_src <- dish_image_paths[[selected_dish()]]$dish
+    img(src = img_src, width = "100%")
+  })
+  
+  output$map_dish_flag <- renderUI({
+    req(selected_dish())
+    img_src <- dish_image_paths[[selected_dish()]]$flag
+    img(src = img_src, width = "100%")
+  })
+  
+  output$plot_dish_image <- renderUI({
+    req(selected_dish())
+    img_src <- dish_image_paths[[selected_dish()]]$dish
+    img(src = img_src, width = "100%")
+  })
+  
+  output$plot_dish_flag <- renderUI({
+    req(selected_dish())
+    img_src <- dish_image_paths[[selected_dish()]]$flag
+    img(src = img_src, width = "100%")
+  })
 }
