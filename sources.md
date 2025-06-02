@@ -11,14 +11,13 @@ Most of my (*Kaja's*) knowledge was acquired here: [shiny.posit.co/r/gallery/](h
 I've (*Kaja*) also used one and only **stack overflow** for debugging:
 
 -   [problem with map](https://stackoverflow.com/questions/46991612/choropleth-world-map-not-showing-all-countries)
+-   [problem with slider numbers](https://stackoverflow.com/questions/26636335/formatting-number-output-of-sliderinput-in-shiny)
 
 ## Image sources
 
 -   [South Korean flag](https://en.wikipedia.org/wiki/Flag_of_South_Korea#/media/File:Flag_of_South_Korea.svg) - [Bibimbap](https://pl.wikipedia.org/wiki/Bibimbap#/media/Plik:Korean.food-Bibimbap-02.jpg)
 
 -   [Indian flag](https://en.wikipedia.org/wiki/Flag_of_India#/media/File:Flag_of_India.svg) - [Biryani](https://en.wikipedia.org/wiki/Biryani#/media/File:%22Hyderabadi_Dum_Biryani%22.jpg)
-
--   [German flag](https://en.wikipedia.org/wiki/Flag_of_Germany#/media/File:Flag_of_Germany.svg) - [Bratwurst with sauerkraut](https://en.wikipedia.org/wiki/Bratwurst#/media/File:2010.08.22.143425_N%C3%BCrnberger_Rostbratwurst_Kirwa_Sulzbach-Rosenberg.jpg)
 
 -   [Italian flag](https://en.wikipedia.org/wiki/Flag_of_Italy#/media/File:Flag_of_Italy.svg) - [Carbonara](https://en.wikipedia.org/wiki/Carbonara#/media/File:Espaguetis_carbonara.jpg)
 
@@ -45,3 +44,5 @@ I've (*Kaja*) also used one and only **stack overflow** for debugging:
 -   Italian flag - [Spaghetti bolognese](https://en.wikipedia.org/wiki/Bolognese_sauce#/media/File:Spaghetti_bolognese_(hozinja).jpg)
 
 -   [Japanese flag](https://en.wikipedia.org/wiki/Flag_of_Japan#/media/File:Flag_of_Japan.svg) - [Sushi](https://en.wikipedia.org/wiki/Sushi#/media/File:Sushi_platter.jpg)
+
+-   [German flag](https://en.wikipedia.org/wiki/Flag_of_Germany#/media/File:Flag_of_Germany.svg) - [Wurst with sauerkraut](https://en.wikipedia.org/wiki/Bratwurst#/media/File:2010.08.22.143425_N%C3%BCrnberger_Rostbratwurst_Kirwa_Sulzbach-Rosenberg.jpg)

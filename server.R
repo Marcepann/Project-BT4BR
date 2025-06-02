@@ -425,7 +425,6 @@ server <- function(input, output, session) {
       summarise(total = sum(Value, na.rm = TRUE)) %>%
       arrange(desc(total))
     
-    
     plot_ly(
       pie_data,
       labels = ~Item,
@@ -499,22 +498,22 @@ server <- function(input, output, session) {
   
   # list of dishes and flags
   dish_image_paths <- list(
-    "Bibimbap" = list(flag = "South Korea.png", dish = "Bibimbap.jpg"),
+    "Bibimbap" = list(flag = "South_Korea.png", dish = "Bibimbap.jpg"),
     "Biryani" = list(flag = "India.png", dish = "Biryani.jpg"),
-    "Bratwurst with sauerkraut" = list(flag = "Germany.png", dish = "Bratwurst with sauerkraut.jpg"),
     "Carbonara" = list(flag = "Italy.png", dish = "Carbonara.jpg"),
     "Falafel" = list(flag = "Egypt.png", dish = "Falafel.jpg"),
     "Kebab" = list(flag = "Turkey.svg", dish = "Kebab.jpg"),
-    "Kimchi" = list(flag = "South Korea.png", dish = "Kimchi.jpg"),
+    "Kimchi" = list(flag = "South_Korea.png", dish = "Kimchi.jpg"),
     "Lecso" = list(flag = "Hungary.png", dish = "Lecso.jpg"),
     "Moules-frites" = list(flag = "Belgium.png", dish = "Moules-frites.jpg"),
     "Moussaka" = list(flag = "Greece.png", dish = "Moussaka.jpg"),
-    "Pad thai" = list(flag = "Thailand.png", dish = "Pad thai.jpg"),
+    "Pad_thai" = list(flag = "Thailand.png", dish = "Pad_thai.jpg"),
     "Pierogi" = list(flag = "Poland.png", dish = "Pierogi.jpeg"),
     "Sarma" = list(flag = "Turkey.svg", dish = "Sarma.jpg"),
-    "Schabowy with potatoes and mizeria" = list(flag = "Poland.png", dish = "Schabowy with potatoes and mizeria.webp"),
-    "Spaghetti bolognese" = list(flag = "Italy.png", dish = "Spaghetti bolognese.jpg"),
-    "Sushi" = list(flag = "Japan.png", dish = "Sushi.jpg")
+    "Schabowy_with_potatoes_and_mizeria" = list(flag = "Poland.png", dish = "Schabowy_with_potatoes_and_mizeria.webp"),
+    "Spaghetti_bolognese" = list(flag = "Italy.png", dish = "Spaghetti_bologneses.jpg"),
+    "Sushi" = list(flag = "Japan.png", dish = "Sushi.jpg"),
+    "Wurst_with_sauerkraut" = list(flag = "Germany.png", dish = "Wurst_with_sauerkraut.jpg")
   )
   
   # generating food buttons
@@ -550,7 +549,7 @@ server <- function(input, output, session) {
   get_country_from_dish <- function(dish) {
     flag_filename <- dish_image_paths[[dish]]$flag
     country_name <- tools::file_path_sans_ext(basename(flag_filename))
-    if (country_name == "South Korea")
+    if (country_name == "South_Korea")
     {
       country_name = "Republic of Korea"
     }

@@ -68,29 +68,29 @@ ui <- tagList(
                         fluidRow(
                           column(3, actionButton("Bibimbap", tagList(img(src = "Bibimbap.jpg", width = "100%"), h4("Bibimbap")))),
                           column(3, actionButton("Biryani", tagList(img(src = "Biryani.jpg", width = "100%"), h4("Biryani")))),
-                          column(3, actionButton("Bratwurst with sauerkraut", tagList(img(src = "Bratwurst with sauerkraut.jpg", width = "100%"), h4("Bratwurst with sauerkraut", style = "white-space: normal; width: 100%")))),
-                          column(3, actionButton("Carbonara", tagList(img(src = "Carbonara.jpg", width = "100%"), h4("Carbonara"))))
+                          column(3, actionButton("Carbonara", tagList(img(src = "Carbonara.jpg", width = "100%"), h4("Carbonara")))),
+                          column(3, actionButton("Falafel", tagList(img(src = "Falafel.jpg", width = "100%"), h4("Falafel"))))
                         ),
                         br(),
                         fluidRow(
-                          column(3, actionButton("Falafel", tagList(img(src = "Falafel.jpg", width = "100%"), h4("Falafel")))),
                           column(3, actionButton("Kebab", tagList(img(src = "Kebab.jpg", width = "100%"), h4("Kebab")))),
                           column(3, actionButton("Kimchi", tagList(img(src = "Kimchi.jpg", width = "100%"), h4("Kimchi")))),
-                          column(3, actionButton("Lecso", tagList(img(src = "Lecso.jpg", width = "100%"), h4("Lecso"))))
+                          column(3, actionButton("Lecso", tagList(img(src = "Lecso.jpg", width = "100%"), h4("Lecso")))),
+                          column(3, actionButton("Moules-frites", tagList(img(src = "Moules-frites.jpg", width = "100%"), h4("Moules-frites"))))
                         ),
                         br(),
                         fluidRow(
-                          column(3, actionButton("Moules-frites", tagList(img(src = "Moules-frites.jpg", width = "100%"), h4("Moules-frites")))),
                           column(3, actionButton("Moussaka", tagList(img(src = "Moussaka.jpg", width = "100%"), h4("Moussaka")))),
-                          column(3, actionButton("Pad thai", tagList(img(src = "Pad thai.jpg", width = "100%"), h4("Pad thai")))),
-                          column(3, actionButton("Pierogi", tagList(img(src = "Pierogi.jpeg", width = "100%"), h4("Pierogi"))))
+                          column(3, actionButton("Pad_thai", tagList(img(src = "Pad_thai.jpg", width = "100%"), h4("Pad thai")))),
+                          column(3, actionButton("Pierogi", tagList(img(src = "Pierogi.jpeg", width = "100%"), h4("Pierogi")))),
+                          column(3, actionButton("Sarma", tagList(img(src = "Sarma.jpg", width = "100%"), h4("Sarma"))))
                         ),
                         br(),
                         fluidRow(
-                          column(3, actionButton("Sarma", tagList(img(src = "Sarma.jpg", width = "100%"), h4("Sarma")))),
-                          column(3, actionButton("Schabowy with potatoes and mizeria", tagList(img(src = "Schabowy with potatoes and mizeria.webp", width = "100%"), h4("Schabowy with potatoes and mizeria", style = "white-space: normal; width: 100%")))),
-                          column(3, actionButton("Spaghetti bolognese", tagList(img(src = "Spaghetti bolognese.jpg", width = "100%"), h4("Spaghetti bolognese")))),
-                          column(3, actionButton("Sushi", tagList(img(src = "Sushi.jpg", width = "100%"), h4("Sushi"))))
+                          column(3, actionButton("Schabowy_with_potatoes_and_mizeria", tagList(img(src = "Schabowy_with_potatoes_and_mizeria.webp", width = "100%"), h4("Schabowy with potatoes and mizeria", style = "white-space: normal; width: 100%")))),
+                          column(3, actionButton("Spaghetti_bolognese", tagList(img(src = "Spaghetti_bolognese.jpg", width = "100%"), h4("Spaghetti bolognese")))),
+                          column(3, actionButton("Sushi", tagList(img(src = "Sushi.jpg", width = "100%"), h4("Sushi")))),
+                          column(3, actionButton("Wurst_with_sauerkraut", tagList(img(src = "Wurst_with_sauerkraut.jpg", width = "100%"), h4("Wurst with sauerkraut", style = "white-space: normal; width: 100%"))))
                         ),
                         hr(),
                         uiOutput("plot_ui")
@@ -173,7 +173,7 @@ ui <- tagList(
                                       # Let the user choose whether to view import or export data
                                       selectInput("wiki3_element", "Type of data:", choices = c("Import quantity", "Export quantity")),
                                       selectInput("wiki3_country", "Choose country:", choices = NULL),
-                                      sliderInput("wiki3_year", "Years range:", min = 1960, max = 2023, value = c(1960, 2023)),
+                                      sliderInput("wiki3_year", "Years range:", min = as.integer(1960), max = as.integer(2023), value = c(1960, 2023), step = 1, sep = ""),
                                       br(),
                                       fluidRow(
                                         column(8, uiOutput("wiki3_dish_image")),
