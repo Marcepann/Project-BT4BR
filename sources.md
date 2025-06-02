@@ -6,12 +6,27 @@ editor: visual
 
 ## Important websites
 
+**All the Data comes from [FAOSTAT](https://www.fao.org/faostat/en/#data/TCL).**
+
+Sources for plotting and data handling:
+
+-   <https://r-graph-gallery.com/>
+-   [shiny.posit.co](%5Bshiny.posit.co%5D)
+-   <https://plotly.com/r/>
+-   <https://cran.r-project.org/>
+-   <https://ggplot2.tidyverse.org/index.html>
+-   <https://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3>
+-   <https://dplyr.tidyverse.org/index.html>
+-   <https://stackoverflow.com/questions>
+
 Most of my (*Kaja's*) knowledge was acquired here: [shiny.posit.co/r/gallery/](https://shiny.posit.co/r/gallery/).
 
 I've (*Kaja*) also used one and only **stack overflow** for debugging:
 
 -   [problem with map](https://stackoverflow.com/questions/46991612/choropleth-world-map-not-showing-all-countries)
 -   [problem with slider numbers](https://stackoverflow.com/questions/26636335/formatting-number-output-of-sliderinput-in-shiny)
+
+We also used excercise materials from BT4BR classes.
 
 ## Image sources
 

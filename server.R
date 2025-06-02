@@ -1,21 +1,25 @@
+# Kaja Lucka, Wiktoria Brandys, Katarzyna Kuhny
+
 server <- function(input, output, session) {
-  # opening the right csv files
   selected_dish <- reactiveVal(NULL)
   
+  # opening the right CSV file
   dish_data <- reactive({
-    req(selected_dish())
-    filepath <- paste0("data/", selected_dish(), ".csv")
-    read.csv(filepath)
+    req(selected_dish())  # if no dish is selected, this stops the code and prevents errors
+    filepath <- paste0("data/", selected_dish(), ".csv")  # it constructs a file path string
+    read.csv(filepath)  # reads the CSV file with data
   })
   
+  # processes the data loaded by dish_data() and adds a new column with country codes
   df <- reactive({
     req(dish_data())
     data <- dish_data()
-    data$iso3 <- countrycode(as.character(data$Area), origin = "country.name", destination = "iso3c", warn = FALSE)
-    data
+    data$iso3 <- countrycode(as.character(data$Area), origin = "country.name", destination = "iso3c", warn = FALSE)  # ensures the country names are treated as strings, suppresses warnings if some country names can't be matched (Yugoslavia ;D)
+    data  # the updated data frame (now with an iso3 column) is returned
   })
   
-  observeEvent(df(), {
+  # watches for changes in the reactive expression df() and updates input widgets - dropdowns
+  observeEvent(df(), {  # when new data is loaded or processed
     updateSelectInput(session, "country", choices = unique(df()$Area), selected = unique(df()$Area)[1])
     
     updateSelectInput(session, "kasia1_ingredient", choices = unique(df()$Item), selected = unique(df()$Item)[1])
@@ -24,6 +28,12 @@ server <- function(input, output, session) {
     updateSelectInput(session, "wiki1_ingredient", choices = c("All ingredients", sort(unique(df()$Item))), selected = "All ingredients")
     updateSelectInput(session, "wiki1_element", choices = unique(df()$Element), selected = unique(df()$Element)[1])
   })
+  
+  # creates a reactive output named dishSelected that indicates whether a dish has been selected or not
+  output$dishSelected <- reactive({
+    !is.null(selected_dish())  # returns TRUE if selected_dish() is not NULL - a dish has been chosen
+  })
+  outputOptions(output, "dishSelected", suspendWhenHidden = FALSE)  # without this, there is a problem with displaying graphs
   
   # ===========================================================================
   # KASIA'S PART
@@ -77,7 +87,7 @@ server <- function(input, output, session) {
   output$worldMap1 <- renderPlotly({
     req(input$kasia1_ingredient, input$kasia1_year, input$kasia1_element, selected_dish())
     
-    # Dane do mapy
+    # data needed to generate the map
     filtered <- df() %>%
       filter(Item == input$kasia1_ingredient,
              Year == input$kasia1_year,
@@ -85,16 +95,17 @@ server <- function(input, output, session) {
              !is.na(Value),
              !is.na(iso3))
     
-    # Kraj pochodzenia potrawy
+    # country of origin of the chosen sih
     origin_country <- get_country_from_dish(selected_dish())
     origin_country_iso3 <- countrycode(origin_country, origin = "country.name", destination = "iso3c")
     
-    # Dane z wartością tylko dla tego kraju
+    # data only for the chosen country
     highlight_df <- data.frame(
       iso3 = origin_country_iso3,
       highlight = 1
     )
     
+    # drawing the graph
     plot_geo(filtered) %>%
       add_trace(
         z = ~Value,
@@ -131,7 +142,7 @@ server <- function(input, output, session) {
     selectInput("kasia2_ingredient", "Select Ingredient:", choices = unique(df()$Item))
   })
   
-  # Create a year slider that only shows years with data for the selected ingredient
+  # create a year slider that only shows years with data for the selected ingredient
   output$kasia2_year_ui <- renderUI({
     req(input$kasia2_ingredient)
     years_available <- df() %>%
@@ -149,7 +160,7 @@ server <- function(input, output, session) {
                 ticks = TRUE)
   })
   
-  # Prepare the data for the plot: filter by ingredient and year, calculate trade balance, and pick top 15 countries
+  # prepare the data for the plot: filter by ingredient and year, calculate trade balance, and pick top 15 countries
   trade_balance <- reactive({
     req(input$kasia2_ingredient, input$kasia2_year)
     df() %>%
@@ -164,7 +175,7 @@ server <- function(input, output, session) {
       slice_head(n = 15)
   })
   
-  # Draw the bar chart showing trade balance, color coded by surplus ++ (green) or deficit -- (red)
+  # draw the bar chart showing trade balance, color coded by surplus ++ (green) or deficit -- (red)
   output$balancePlot <- renderPlotly({
     d <- trade_balance()
     
@@ -189,6 +200,7 @@ server <- function(input, output, session) {
   # KASIA'S PART
   # THIRD GRAPH
   
+  # generating the dumbbell plot
   output$yearRange_ui <- renderUI({
     req(df())  # wait for data to become available
     sliderInput("yearRange", "Select time range:",
@@ -226,6 +238,7 @@ server <- function(input, output, session) {
       arrange(!!sym(year_cols[2])) %>%
       mutate(Item = factor(Item, levels = Item))
     
+    # draw the graph :D
     plot_ly(data = summary) %>%
       add_segments(x = ~get(year_cols[1]),
                    xend = ~get(year_cols[2]),
@@ -339,7 +352,7 @@ server <- function(input, output, session) {
   })
   # ===========================================================================
   # WIKTORIA'S PART - 2
-  # Create a year slider that only shows years with data for the selected ingredient and element
+  # create a year slider that only shows years with data for the selected ingredient and element
   output$wiki2_ingredient_ui <- renderUI({
     req(df())  
     
@@ -367,8 +380,7 @@ server <- function(input, output, session) {
   output$barPlot <- renderPlotly({
     req(input$wiki2_ingredient, input$wiki2_element, input$year)
     
-    # Filter data for the selected ingredient, element type (import/export),
-    # and years.
+    # filter data for the selected ingredient, element type (import/export) and years
     filtered <- df() %>%
       filter(
         Item == input$wiki2_ingredient,
@@ -391,7 +403,7 @@ server <- function(input, output, session) {
     
     color <- colorRampPalette(brewer.pal(8, "Set2"))(10)
     
-    # Draw bar plot showing top 10 countries by import/export of the selected ingredient in the chosen year
+    # draw bar plot showing top 10 countries by import/export of the selected ingredient in the chosen year
     p <- ggplot(top_countries, aes(x = reorder(Area, value), y = value, fill = Area)) +
       geom_bar(stat = "identity") +
       scale_fill_manual(values = color) +
@@ -413,7 +425,7 @@ server <- function(input, output, session) {
     
     req(input$wiki3_country, input$wiki3_element, input$wiki3_year)
     
-    # Filtrowanie danych
+    # data filtration
     pie_data <- df() %>%
       filter(
         Area == input$wiki3_country,
@@ -425,6 +437,7 @@ server <- function(input, output, session) {
       summarise(total = sum(Value, na.rm = TRUE)) %>%
       arrange(desc(total))
     
+    # drawing the graph 
     plot_ly(
       pie_data,
       labels = ~Item,
@@ -444,58 +457,6 @@ server <- function(input, output, session) {
       )
   })
   # ===========================================================================
-  # making buttons to download Kasia's code
-  output$downloadKasia1App <- downloadHandler(
-    filename = function() {
-      "data/kasia1_app.r"
-    },
-    content = function(file) {
-      file.copy("data/kasia1_app.r", file)
-    },
-    contentType = "text/plain"
-  )
-  
-  output$downloadKasia2App <- downloadHandler(
-    filename = function() {
-      "data/kasia2_app.r"
-    },
-    content = function(file) {
-      file.copy("data/kasia2_app.r", file)
-    },
-    contentType = "text/plain"
-  )
-  
-  output$downloadKasia3App <- downloadHandler(
-    filename = function() {
-      "data/kasia3_app.r"
-    },
-    content = function(file) {
-      file.copy("data/kasia3_app.r", file)
-    },
-    contentType = "text/plain"
-  )
-  
-  # making button to download Wiktoria's code
-  output$downloadWiki1App <- downloadHandler(
-    filename = function() {
-      "data/wiktoria1_app.r"
-    },
-    content = function(file) {
-      file.copy("data/wiktoria1_app.r", file)
-    },
-    contentType = "text/plain"
-  )
-  
-  output$downloadWiki2App <- downloadHandler(
-    filename = function() {
-      "data/wiktoria2_app.r"
-    },
-    content = function(file) {
-      file.copy("data/wiktoria2_app.r", file)
-    },
-    contentType = "text/plain"
-  )
-  
   # list of dishes and flags
   dish_image_paths <- list(
     "Bibimbap" = list(flag = "South_Korea.png", dish = "Bibimbap.jpg"),
@@ -524,7 +485,7 @@ server <- function(input, output, session) {
     })
   })
   
-  # inserting images into the tabpanel
+  # inserting images into the sidepanel
   prefixes <- c("kasia1", "kasia2", "kasia3", "wiki1", "wiki2", "wiki3")
   
   lapply(prefixes, function(prefix) {
@@ -544,6 +505,23 @@ server <- function(input, output, session) {
     })
   })
   
+  # making buttons to download Kasia's and Wiktoria's code
+  download_prefixes <- c("kasia1", "kasia2", "kasia3", "wiktoria1", "wiktoria2", "wiktoria3")
+  
+  lapply(download_prefixes, function(prefix) {
+    local({
+      p <- prefix
+      output[[paste0("download", toupper(substr(p, 1, 1)), substr(p, 2, nchar(p)), "App")]] <- downloadHandler(
+        filename = function() {
+          paste0("data/", p, "_app.r")
+        },
+        content = function(file) {
+          file.copy(paste0("data/", p, "_app.r"), file)
+        },
+        contentType = "text/plain"
+      )
+    })
+  })
   
   # function to get the country's name from the filename
   get_country_from_dish <- function(dish) {

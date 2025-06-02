@@ -7,7 +7,7 @@ library(dplyr)
 library(countrycode)
 
 
-df <- read_csv("Bratwurst with sauerkraut.csv")
+df <- read_csv("Bratwurst_with_sauerkraut.csv")
 df$iso3 <- countrycode(df$Area, origin = "country.name", destination = "iso3c")
 
 

@@ -5,7 +5,7 @@ library(readr)
 library(plotly)
 
 # Load CSV file with trade data
-data <- read_csv("Bratwurst with sauerkraut.csv")
+data <- read_csv("Bratwurst_with_sauerkraut.csv")
 
 
 # UI
