@@ -4,6 +4,7 @@ library(markdown)
 library(plotly)
 library(readr)
 library(dplyr)
+library(tidyr)
 library(countrycode)
 library(RColorBrewer)
 
@@ -98,48 +99,73 @@ ui <- tagList(
              
              tabPanel("Graphs",
                       fluidPage(  
-                        titlePanel("Global Import / Export of Products"),
                         tabsetPanel(
-                          # ===========================================================================
-                          # KASIA'S PART
-                          tabPanel("Map",
-                                   sidebarLayout(
-                                     sidebarPanel(
-                                       selectInput("map_ingredient", "Choose a Product:", choices = NULL),
-                                       selectInput("map_element", "Import or Export:", choices = c("Import quantity", "Export quantity")),
-                                       uiOutput("map_year_ui"),
-                                       fluidRow(
-                                         column(8, uiOutput("map_dish_image")),
-                                         column(4, uiOutput("map_dish_flag"))
+                          tabPanel("Import / Export",
+                            tabsetPanel(
+                              # ===========================================================================
+                              # KASIA'S PART - 1
+                              tabPanel("Map",
+                                       sidebarLayout(
+                                         sidebarPanel(
+                                           selectInput("kasia1_ingredient", "Choose a Product:", choices = NULL),
+                                           selectInput("kasia1_element", "Import or Export:", choices = c("Import quantity", "Export quantity")),
+                                           uiOutput("kasia1_year_ui"),
+                                           fluidRow(
+                                             column(8, uiOutput("kasia1_dish_image")),
+                                             column(4, uiOutput("kasia1_dish_flag"))
+                                           )
+                                         ),
+                                         mainPanel(
+                                           plotlyOutput("worldMap1", height = "600px")
+                                         )
                                        )
-                                     ),
-                                     mainPanel(
-                                       plotlyOutput("worldMap", height = "600px")
-                                     )
-                                   )
-                          ),
-                          # ===========================================================================
-                          # WIKTORIA'S PART
-                          tabPanel("Plot",
-                                   sidebarLayout(
-                                     sidebarPanel(
-                                       selectInput("plot_ingredient", "Choose ingredient:", choices = NULL),
-                                       selectInput("country", "Choose country:", choices = NULL),
-                                       selectInput("plot_element", "Type of data:", choices = c("Import quantity", "Export quantity")),
-                                       uiOutput("plot_year_ui"),
-                                       fluidRow(
-                                         column(8, uiOutput("plot_dish_image")),
-                                         column(4, uiOutput("plot_dish_flag"))
+                              ),
+                              # ===========================================================================
+                              # WIKTORIA'S PART - 1
+                              tabPanel("Plot",
+                                       sidebarLayout(
+                                         sidebarPanel(
+                                           selectInput("wiki1_ingredient", "Choose ingredient:", choices = NULL),
+                                           selectInput("country", "Choose country:", choices = NULL),
+                                           selectInput("wiki1_element", "Type of data:", choices = c("Import quantity", "Export quantity")),
+                                           uiOutput("wiki1_year_ui"),
+                                           fluidRow(
+                                             column(8, uiOutput("wiki1_dish_image")),
+                                             column(4, uiOutput("wiki1_dish_flag"))
+                                           )
+                                         ),
+                                         
+                                         mainPanel(
+                                           br(),
+                                           plotlyOutput("linePlot", height = "600px", width = "900px")
+                                         )
                                        )
-                                     ),
-                                     
-                                     mainPanel(
-                                       plotlyOutput("linePlot", height = "600px", width = "900px")
-                                     )
-                                   )
+                                ),
+                              )
+                            ),
+                            tabPanel("Trade Imbalance",
+                              tabsetPanel(
+                                # ===========================================================================
+                                # KASIA'S PART - 2
+                                tabPanel("Trade Imbalance",
+                                         sidebarLayout(
+                                            sidebarPanel(
+                                              # Let the user pick which ingredient to look at
+                                              uiOutput("kasia2_ingredient_ui"),
+                                              
+                                              # This will be the year slider, created dynamically based on ingredient
+                                              uiOutput("kasia2_year_ui")
+                                            ),
+                                            mainPanel(
+                                              br(),
+                                              # Where the bar chart will show up
+                                              plotlyOutput("balancePlot")
+                                            )
+                                          )
+                                )
+                              )
+                            )
                           )
-                          # ===========================================================================
-                        )
                       )
              ),
              
@@ -159,10 +185,9 @@ ui <- tagList(
                                  h4("Wiktoria"),
                                  div(style = "text-align: center;", 
                                      img(src = "wikikot.jpg", style = "border-radius: 2%; max-width: 80%; height: auto;")),
-                                 br(),
                                  p("She was in charge of generating the", tags$b("plots"), "in RShiny and collecting the input CSV files."),
-                                 downloadButton("downloadWikiApp", "Download her code", 
-                                                style = "white-space: normal; width: 100%; font-size: 14px")
+                                 downloadButton("downloadWikiApp", "Download Import/Export Plot", 
+                                                style = "white-space: normal; width: 100%; font-size: 14px"),
                                )
                         ),
                         column(4,
@@ -170,9 +195,11 @@ ui <- tagList(
                                  h4("Kasia"),
                                  div(style = "text-align: center;", 
                                      img(src = "pysiozbysio.jpg", style = "border-radius: 2%; max-width: 80%; height: auto;")),
-                                 br(),
                                  p("She was in charge of generating the", tags$b("maps"), "in RShiny and collecting the input CSV files."),
-                                 downloadButton("downloadKasiaApp", "Download her code", 
+                                 downloadButton("downloadKasia1App", "Download Import/Export Map", 
+                                                style = "white-space: normal; width: 100%; font-size: 14px"),
+                                 div(style = "margin-top: 10px"),
+                                 downloadButton("downloadKasia2App", "Download Trade Imbalance Graph", 
                                                 style = "white-space: normal; width: 100%; font-size: 14px")
                                )
                         )

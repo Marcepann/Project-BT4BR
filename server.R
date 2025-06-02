@@ -16,34 +16,35 @@ server <- function(input, output, session) {
   })
   
   observeEvent(df(), {
-    updateSelectInput(session, "map_ingredient", choices = unique(df()$Item), selected = unique(df()$Item)[1])
-    updateSelectInput(session, "map_element", choices = unique(df()$Element), selected = unique(df()$Element)[1])
+    updateSelectInput(session, "kasia1_ingredient", choices = unique(df()$Item), selected = unique(df()$Item)[1])
+    updateSelectInput(session, "kasia1_element", choices = unique(df()$Element), selected = unique(df()$Element)[1])
     
-    updateSelectInput(session, "plot_ingredient", choices = c("All ingredients", sort(unique(df()$Item))), selected = "All ingredients")
-    updateSelectInput(session, "plot_element", choices = unique(df()$Element), selected = unique(df()$Element)[1])
+    updateSelectInput(session, "wiki1_ingredient", choices = c("All ingredients", sort(unique(df()$Item))), selected = "All ingredients")
+    updateSelectInput(session, "wiki1_element", choices = unique(df()$Element), selected = unique(df()$Element)[1])
     updateSelectInput(session, "country", choices = unique(df()$Area), selected = unique(df()$Area)[1])
   })
   
   # ===========================================================================
   # KASIA'S PART
+  # FIRST GRAPH
   # choosing ingredient
   observe({
-    updateSelectInput(session, "map_ingredient", choices = unique(df()$Item))
+    updateSelectInput(session, "kasia1_ingredient", choices = unique(df()$Item))
   })
   
   # choosing a year
-  output$map_year_ui <- renderUI({
-    req(input$map_ingredient, input$map_element)
+  output$kasia1_year_ui <- renderUI({
+    req(input$kasia1_ingredient, input$kasia1_element)
     
     available_years <- df() %>%
-      filter(Item == input$map_ingredient,
-             Element == input$map_element,
+      filter(Item == input$kasia1_ingredient,
+             Element == input$kasia1_element,
              !is.na(Value)) %>%
       pull(Year) %>%
       unique() %>%
       sort()
     
-    sliderInput("year", "Choose Year:",
+    sliderInput("kasia1_year", "Choose Year:",
                 min = min(available_years),
                 max = max(available_years),
                 value = min(available_years),
@@ -53,18 +54,18 @@ server <- function(input, output, session) {
   })
   
   
-  observeEvent(c(input$map_ingredient, input$map_element), {
-    req(input$map_ingredient, input$map_element)
+  observeEvent(c(input$kasia1_ingredient, input$kasia1_element), {
+    req(input$kasia1_ingredient, input$kasia1_element)
     
     available_years <- df() %>%
-      filter(Item == input$map_ingredient,
-             Element == input$map_element,
+      filter(Item == input$kasia1_ingredient,
+             Element == input$kasia1_element,
              !is.na(Value)) %>%
       pull(Year) %>%
       unique() %>%
       sort()
     
-    updateSliderInput(session, "year",
+    updateSliderInput(session, "kasia1_year",
                       min = min(available_years),
                       max = max(available_years),
                       value = min(available_years))
@@ -72,14 +73,14 @@ server <- function(input, output, session) {
   
   
   # rendering a map
-  output$worldMap <- renderPlotly({
-    req(input$map_ingredient, input$year, input$map_element, selected_dish())
+  output$worldMap1 <- renderPlotly({
+    req(input$kasia1_ingredient, input$kasia1_year, input$kasia1_element, selected_dish())
     
     # Dane do mapy
     filtered <- df() %>%
-      filter(Item == input$map_ingredient,
-             Year == input$year,
-             Element == input$map_element,
+      filter(Item == input$kasia1_ingredient,
+             Year == input$kasia1_year,
+             Element == input$kasia1_element,
              !is.na(Value),
              !is.na(iso3))
     
@@ -114,7 +115,7 @@ server <- function(input, output, session) {
       ) %>%
       colorbar(title = "Quantity (t)") %>%
       layout(
-        title = paste(input$map_element, "of", input$map_ingredient, "in", input$year),
+        title = paste(input$kasia1_element, "of", input$kasia1_ingredient, "in", input$kasia1_year),
         geo = list(
           showframe = FALSE,
           showcoastlines = FALSE,
@@ -126,19 +127,82 @@ server <- function(input, output, session) {
       )
   })
   # ===========================================================================
+  # KASIA'S PART
+  # SECOND GRAPH
+  output$kasia2_ingredient_ui <- renderUI({
+    req(df())
+    selectInput("kasia2_ingredient", "Select Ingredient:", choices = unique(df()$Item))
+  })
+  
+  # Create a year slider that only shows years with data for the selected ingredient
+  output$kasia2_year_ui <- renderUI({
+    req(input$kasia2_ingredient)
+    years_available <- df() %>%
+      filter(Item == input$kasia2_ingredient) %>%
+      distinct(Year) %>%
+      arrange(Year) %>%
+      pull(Year)
+    
+    sliderInput("kasia2_year", "Select Year:",
+                min = min(years_available),
+                max = max(years_available),
+                value = max(years_available),
+                step = 1,
+                sep = "",
+                ticks = TRUE)
+  })
+  
+  # Prepare the data for the plot: filter by ingredient and year, calculate trade balance, and pick top 15 countries
+  trade_balance <- reactive({
+    req(input$kasia2_ingredient, input$kasia2_year)
+    df() %>%
+      filter(Item == input$kasia2_ingredient, Year == input$kasia2_year) %>%
+      select(Area, Element, Value) %>%
+      pivot_wider(names_from = Element, values_from = Value, values_fill = 0) %>%
+      mutate(Balance = `Export quantity` - `Import quantity`) %>%
+      group_by(Area) %>%
+      summarize(Balance = sum(Balance), .groups = "drop") %>%
+      mutate(abs_balance = abs(Balance)) %>%
+      arrange(desc(abs_balance)) %>%
+      slice_head(n = 15)
+  })
+  
+  # Draw the bar chart showing trade balance, color coded by surplus ++ (green) or deficit -- (red)
+  output$balancePlot <- renderPlotly({
+    d <- trade_balance()
+    
+    # nothing to plot if data is empty~
+    if (nrow(d) == 0) return(NULL)
+    
+    plot_ly(d,
+            x = ~Balance,
+            y = ~reorder(Area, Balance),
+            type = "bar",
+            orientation = "h",
+            marker = list(color = ~ifelse(Balance > 0, "green", "red")),
+            hovertemplate = paste('Balance: %{x:,} tons<extra></extra>')
+    ) %>%
+      layout(
+        title = paste("Top 15 Trade Balance Differences for", input$kasia2_ingredient, "in", input$kasia2_year),
+        xaxis = list(title = "Trade Balance (Export - Import)"),
+        yaxis = list(title = "")
+      )
+  })
+  
+  # ===========================================================================
   # WIKTORIA'S PART
   observe({
     ingredients <- sort(unique(df()$Item))
-    updateSelectInput(session, "plot_ingredient", choices = c("All ingredients", ingredients))
+    updateSelectInput(session, "wiki1_ingredient", choices = c("All ingredients", ingredients))
     updateSelectInput(session, "country", choices = unique(df()$Area))
   })
   
-  output$plot_year_ui <- renderUI({
+  output$wiki1_year_ui <- renderUI({
     available_years <- df() %>%
       filter(
         Area == input$country,
-        Item == input$plot_ingredient | input$plot_ingredient == "All ingredients",
-        Element == input$plot_element
+        Item == input$wiki1_ingredient | input$wiki1_ingredient == "All ingredients",
+        Element == input$wiki1_element
       ) %>%
       pull(Year) %>%
       unique() %>%
@@ -157,7 +221,7 @@ server <- function(input, output, session) {
   })
   
   output$linePlot <- renderPlotly({
-    req(input$plot_ingredient, input$country, input$plot_element, input$years)
+    req(input$wiki1_ingredient, input$country, input$wiki1_element, input$years)
     
     colors_of_ingredients <- setNames(
       colorRampPalette(brewer.pal(8, "Paired"))(length(unique(df()$Item))),
@@ -167,18 +231,18 @@ server <- function(input, output, session) {
     filtered <- df() %>%
       filter(
         Area == input$country,
-        Element == input$plot_element,
+        Element == input$wiki1_element,
         !is.na(Value), !is.na(Item),
         Year >= input$years[1], Year <= input$years[2]
       )
     
-    if (input$plot_ingredient == "All ingredients") {
+    if (input$wiki1_ingredient == "All ingredients") {
       p <- ggplot(filtered, aes(x = Year, y = Value, color = Item)) +
         geom_line(linewidth = 0.6) +
         geom_point(size = 1.5) +
         scale_color_manual(values = colors_of_ingredients) +
         labs(
-          title = paste(input$plot_element, "of all ingredients in", input$country),
+          title = paste(input$wiki1_element, "of all ingredients in", input$country),
           x = "Year", y = "Value (t)", color = "Ingredients"
         ) +
         theme_minimal()
@@ -187,13 +251,13 @@ server <- function(input, output, session) {
       filtered <- df() %>%
         filter(
           Area == input$country,
-          Element == input$plot_element,
+          Element == input$wiki1_element,
           !is.na(Value), !is.na(Item),
           Year >= input$years[1], Year <= input$years[2]
         )
       
-      if (input$plot_ingredient != "All ingredients") {
-        filtered <- filtered %>% filter(Item == input$plot_ingredient)
+      if (input$wiki1_ingredient != "All ingredients") {
+        filtered <- filtered %>% filter(Item == input$wiki1_ingredient)
       }
       
       p <- ggplot(filtered, aes(x = Year, y = Value, color = Item)) +
@@ -201,7 +265,7 @@ server <- function(input, output, session) {
         geom_point(size = 1.5) +
         scale_color_manual(values = colors_of_ingredients) +
         labs(
-          title = paste(input$plot_element, "of", input$plot_ingredient, "in", input$country),
+          title = paste(input$wiki1_element, "of", input$wiki1_ingredient, "in", input$country),
           x = "Year", y = "Value (t)", color = "Ingredient"
         ) +
         theme_minimal()
@@ -211,13 +275,23 @@ server <- function(input, output, session) {
       layout(hovermode = "x unified")
   })
   # ===========================================================================
-  # making button to download Kasia's code
-  output$downloadKasiaApp <- downloadHandler(
+  # making buttons to download Kasia's code
+  output$downloadKasia1App <- downloadHandler(
     filename = function() {
-      "data/kasia_app.r"
+      "data/kasia1_app.r"
     },
     content = function(file) {
-      file.copy("data/kasia_app.r", file)
+      file.copy("data/kasia1_app.r", file)
+    },
+    contentType = "text/plain"
+  )
+  
+  output$downloadKasia2App <- downloadHandler(
+    filename = function() {
+      "data/kasia2_app.r"
+    },
+    content = function(file) {
+      file.copy("data/kasia2_app.r", file)
     },
     contentType = "text/plain"
   )
@@ -262,31 +336,31 @@ server <- function(input, output, session) {
   })
   
   # inserting images into the tabpanel
-  output$map_dish_image <- renderUI({
+  output$kasia1_dish_image <- renderUI({
     req(selected_dish())
     img_src <- dish_image_paths[[selected_dish()]]$dish
     img(src = img_src, width = "100%")
   })
   
-  output$map_dish_flag <- renderUI({
+  output$kasia1_dish_flag <- renderUI({
     req(selected_dish())
     img_src <- dish_image_paths[[selected_dish()]]$flag
     img(src = img_src, width = "100%")
   })
   
-  output$plot_dish_image <- renderUI({
+  output$wiki1_dish_image <- renderUI({
     req(selected_dish())
     img_src <- dish_image_paths[[selected_dish()]]$dish
     img(src = img_src, width = "100%")
   })
   
-  output$plot_dish_flag <- renderUI({
+  output$wiki1_dish_flag <- renderUI({
     req(selected_dish())
     img_src <- dish_image_paths[[selected_dish()]]$flag
     img(src = img_src, width = "100%")
   })
   
-  # Pomocnicza funkcja do wyciągania kraju z nazwy pliku flagi
+  # function to get the country's name from the filename
   get_country_from_dish <- function(dish) {
     flag_filename <- dish_image_paths[[dish]]$flag
     country_name <- tools::file_path_sans_ext(basename(flag_filename))
