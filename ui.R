@@ -265,7 +265,7 @@ ui <- tagList(
                                  div(style = "text-align: center;", 
                                      img(src = "kociakslodziak.jpeg", style = "border-radius: 2%; max-width: 80%; height: auto;")),
                                  br(),
-                                 p("They were in charge of putting everything together and making this beautiful website - so they did everything except the graphs (but they debugged them and tinkered with them a little.)")
+                                 p("They were in charge of putting everything together and", tags$b(" making this beautiful website"), "- so they did everything except the graphs (but they debugged them and tinkered with them a little.)")
                                )
                         ),
                         column(4,
@@ -274,7 +274,7 @@ ui <- tagList(
                                  div(style = "text-align: center;", 
                                      img(src = "wikikot.jpg", style = "border-radius: 2%; max-width: 80%; height: auto;")),
                                  br(),
-                                 p("She was in charge of", tags$b("generating the 3 interactive graphs"), "in RShiny. Furthermore, she meticulously collected the data from FAOSTAT and saved it in the CSV files (we have 16 of them in this project). You can check her code by downloading it using the buttons below!"),
+                                 p("She was in charge of", tags$b("generating the 3 interactive graphs"), "in RShiny. Furthermore, she meticulously collected the data from FAOSTAT and saved it in the CSV files (we have 16 of them in this project). She has also created the README file. You can check her code by downloading it using the buttons below!"),
                                  downloadButton("downloadWiktoria1App", "Download Import/Export Multi-line Plot",  # very cool buttons that allow to download the code written by respectable people
                                                 style = "white-space: normal; width: 100%; font-size: 14px"),
                                  div(style = "margin-top: 10px"),  # \newline, but in different flavour

@@ -82,7 +82,6 @@ server <- function(input, output, session) {
                       value = min(available_years))
   })
   
-  
   # rendering a map
   output$worldMap1 <- renderPlotly({
     req(input$kasia1_ingredient, input$kasia1_year, input$kasia1_element, selected_dish())
@@ -95,15 +94,24 @@ server <- function(input, output, session) {
              !is.na(Value),
              !is.na(iso3))
     
-    # country of origin of the chosen sih
+    # country of origin of the chosen dish
     origin_country <- get_country_from_dish(selected_dish())
     origin_country_iso3 <- countrycode(origin_country, origin = "country.name", destination = "iso3c")
     
-    # data only for the chosen country
-    highlight_df <- data.frame(
-      iso3 = origin_country_iso3,
-      highlight = 1
-    )
+    # check if origin country is already in the filtered data
+    if (!(origin_country_iso3 %in% filtered$iso3)) {
+      filtered <- bind_rows(
+        filtered,
+        data.frame(
+          Area = origin_country,
+          Item = input$kasia1_ingredient,
+          Year = input$kasia1_year,
+          Element = input$kasia1_element,
+          Value = NA,
+          iso3 = origin_country_iso3
+        )
+      )
+    }
     
     # drawing the graph
     plot_geo(filtered) %>%
@@ -267,6 +275,24 @@ server <- function(input, output, session) {
   
   # ===========================================================================
   # WIKTORIA'S PART - 1
+  filtered <- reactive({
+    req(input$wiki1_ingredient, input$country, input$wiki1_element, input$years)
+    
+    data <- df() %>%
+      filter(
+        Area == input$country,
+        Element == input$wiki1_element,
+        !is.na(Value), !is.na(Item),
+        Year >= input$years[1], Year <= input$years[2]
+      )
+    
+    if (input$wiki1_ingredient != "All ingredients") {
+      data <- data %>% filter(Item == input$wiki1_ingredient)
+    }
+    
+    data
+  })
+  
   observe({
     ingredients <- sort(unique(df()$Item))
     updateSelectInput(session, "wiki1_ingredient", choices = c("All ingredients", ingredients))
@@ -297,59 +323,35 @@ server <- function(input, output, session) {
   })
   
   output$linePlot <- renderPlotly({
-    req(input$wiki1_ingredient, input$country, input$wiki1_element, input$years)
+    data <- filtered()
+    
+    validate(
+      need(nrow(data) > 0, "No data available for this combination")
+    )
     
     colors_of_ingredients <- setNames(
       colorRampPalette(brewer.pal(8, "Paired"))(length(unique(df()$Item))),
       sort(unique(df()$Item))
     )
     
-    filtered <- df() %>%
-      filter(
-        Area == input$country,
-        Element == input$wiki1_element,
-        !is.na(Value), !is.na(Item),
-        Year >= input$years[1], Year <= input$years[2]
-      )
+    p <- ggplot(data, aes(x = Year, y = Value, color = Item)) +
+      geom_line(linewidth = 0.6) +
+      geom_point(size = 1.5) +
+      scale_color_manual(values = colors_of_ingredients) +
+      labs(
+        title = if (input$wiki1_ingredient == "All ingredients") {
+          paste(input$wiki1_element, "of all ingredients in", input$country)
+        } else {
+          paste(input$wiki1_element, "of", input$wiki1_ingredient, "in", input$country)
+        },
+        x = "Year", y = "Value (t)", color = "Ingredient"
+      ) +
+      theme_minimal()
     
-    if (input$wiki1_ingredient == "All ingredients") {
-      p <- ggplot(filtered, aes(x = Year, y = Value, color = Item)) +
-        geom_line(linewidth = 0.6) +
-        geom_point(size = 1.5) +
-        scale_color_manual(values = colors_of_ingredients) +
-        labs(
-          title = paste(input$wiki1_element, "of all ingredients in", input$country),
-          x = "Year", y = "Value (t)", color = "Ingredients"
-        ) +
-        theme_minimal()
-    } 
-    else {
-      filtered <- df() %>%
-        filter(
-          Area == input$country,
-          Element == input$wiki1_element,
-          !is.na(Value), !is.na(Item),
-          Year >= input$years[1], Year <= input$years[2]
-        )
-      
-      if (input$wiki1_ingredient != "All ingredients") {
-        filtered <- filtered %>% filter(Item == input$wiki1_ingredient)
-      }
-      
-      p <- ggplot(filtered, aes(x = Year, y = Value, color = Item)) +
-        geom_line(linewidth = 0.6) +
-        geom_point(size = 1.5) +
-        scale_color_manual(values = colors_of_ingredients) +
-        labs(
-          title = paste(input$wiki1_element, "of", input$wiki1_ingredient, "in", input$country),
-          x = "Year", y = "Value (t)", color = "Ingredient"
-        ) +
-        theme_minimal()
-    }
-    
-    ggplotly(p, tooltip = c("x", "y", "color")) %>% 
+    ggplotly(p, tooltip = c("x", "y", "color")) %>%
       layout(hovermode = "x unified")
   })
+  
   # ===========================================================================
   # WIKTORIA'S PART - 2
   # create a year slider that only shows years with data for the selected ingredient and element
