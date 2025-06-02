@@ -16,12 +16,13 @@ server <- function(input, output, session) {
   })
   
   observeEvent(df(), {
+    updateSelectInput(session, "country", choices = unique(df()$Area), selected = unique(df()$Area)[1])
+    
     updateSelectInput(session, "kasia1_ingredient", choices = unique(df()$Item), selected = unique(df()$Item)[1])
     updateSelectInput(session, "kasia1_element", choices = unique(df()$Element), selected = unique(df()$Element)[1])
     
     updateSelectInput(session, "wiki1_ingredient", choices = c("All ingredients", sort(unique(df()$Item))), selected = "All ingredients")
     updateSelectInput(session, "wiki1_element", choices = unique(df()$Element), selected = unique(df()$Element)[1])
-    updateSelectInput(session, "country", choices = unique(df()$Area), selected = unique(df()$Area)[1])
   })
   
   # ===========================================================================
@@ -404,6 +405,46 @@ server <- function(input, output, session) {
     ggplotly(p, tooltip = c("x", "y"))
   })
   # ===========================================================================
+  # WIKTORIA'S PART - 3
+  observe({
+    updateSelectInput(session, "wiki3_country", choices = unique(df()$Area))
+  })
+  output$piePlot <- renderPlotly({
+    
+    req(input$wiki3_country, input$wiki3_element, input$wiki3_year)
+    
+    # Filtrowanie danych
+    pie_data <- df() %>%
+      filter(
+        Area == input$wiki3_country,
+        Element == input$wiki3_element,
+        !is.na(Value), !is.na(Item),
+        Year >= input$wiki3_year[1], Year <= input$wiki3_year[2]
+      ) %>%
+      group_by(Item) %>%
+      summarise(total = sum(Value, na.rm = TRUE)) %>%
+      arrange(desc(total))
+    
+    
+    plot_ly(
+      pie_data,
+      labels = ~Item,
+      values = ~total,
+      type = "pie",
+      textinfo = "percent",
+      textposition = "outside",
+      hoverinfo = "label+percent+value",
+      showlegend = TRUE
+    ) %>%
+      layout(
+        title = list(
+          text = paste("Share of", input$wiki3_element, "in", input$wiki3_country, "from", input$wiki3_year[1], "to", input$wiki3_year[2]),
+          y = 0.95  # relocating the graph a bit
+        ),
+        margin = list(t = 100, l = 50)
+      )
+  })
+  # ===========================================================================
   # making buttons to download Kasia's code
   output$downloadKasia1App <- downloadHandler(
     filename = function() {
@@ -485,29 +526,25 @@ server <- function(input, output, session) {
   })
   
   # inserting images into the tabpanel
-  output$kasia1_dish_image <- renderUI({
-    req(selected_dish())
-    img_src <- dish_image_paths[[selected_dish()]]$dish
-    img(src = img_src, width = "100%")
+  prefixes <- c("kasia1", "kasia2", "kasia3", "wiki1", "wiki2", "wiki3")
+  
+  lapply(prefixes, function(prefix) {
+    local({
+      p <- prefix
+      output[[paste0(p, "_dish_image")]] <- renderUI({
+        req(selected_dish())
+        img_src <- dish_image_paths[[selected_dish()]]$dish
+        img(src = img_src, width = "100%")
+      })
+      
+      output[[paste0(p, "_dish_flag")]] <- renderUI({
+        req(selected_dish())
+        img_src <- dish_image_paths[[selected_dish()]]$flag
+        img(src = img_src, width = "100%")
+      })
+    })
   })
   
-  output$kasia1_dish_flag <- renderUI({
-    req(selected_dish())
-    img_src <- dish_image_paths[[selected_dish()]]$flag
-    img(src = img_src, width = "100%")
-  })
-  
-  output$wiki1_dish_image <- renderUI({
-    req(selected_dish())
-    img_src <- dish_image_paths[[selected_dish()]]$dish
-    img(src = img_src, width = "100%")
-  })
-  
-  output$wiki1_dish_flag <- renderUI({
-    req(selected_dish())
-    img_src <- dish_image_paths[[selected_dish()]]$flag
-    img(src = img_src, width = "100%")
-  })
   
   # function to get the country's name from the filename
   get_country_from_dish <- function(dish) {

@@ -108,6 +108,7 @@ ui <- tagList(
                                            selectInput("kasia1_ingredient", "Choose a Product:", choices = NULL),
                                            selectInput("kasia1_element", "Import or Export:", choices = c("Import quantity", "Export quantity")),
                                            uiOutput("kasia1_year_ui"),
+                                           br(),
                                            fluidRow(
                                              column(8, uiOutput("kasia1_dish_image")),
                                              column(4, uiOutput("kasia1_dish_flag"))
@@ -127,6 +128,7 @@ ui <- tagList(
                                            selectInput("country", "Choose country:", choices = NULL),
                                            selectInput("wiki1_element", "Type of data:", choices = c("Import quantity", "Export quantity")),
                                            uiOutput("wiki1_year_ui"),
+                                           br(),
                                            fluidRow(
                                              column(8, uiOutput("wiki1_dish_image")),
                                              column(4, uiOutput("wiki1_dish_flag"))
@@ -149,7 +151,12 @@ ui <- tagList(
                                              # Let the user choose whether to view import or export data
                                              selectInput("wiki2_element", "Type of data:", choices = c("Import quantity", "Export quantity")),
                                              # This will be the year slider, created dynamically based on ingredient and export/import
-                                             uiOutput("wiki2_year_ui")
+                                             uiOutput("wiki2_year_ui"),
+                                             br(),
+                                             fluidRow(
+                                               column(8, uiOutput("wiki2_dish_image")),
+                                               column(4, uiOutput("wiki2_dish_flag"))
+                                             )
                                            ),
                                            
                                            mainPanel(
@@ -159,7 +166,29 @@ ui <- tagList(
                                          )
                                 ),
                                 # ===========================================================================
-                                # KASIA'S PART - 3
+                                # WIKTORIA'S PART - 3
+                                tabPanel("Import / Export Piechart",
+                                  sidebarLayout(
+                                    sidebarPanel(
+                                      # Let the user choose whether to view import or export data
+                                      selectInput("wiki3_element", "Type of data:", choices = c("Import quantity", "Export quantity")),
+                                      selectInput("wiki3_country", "Choose country:", choices = NULL),
+                                      sliderInput("wiki3_year", "Years range:", min = 1960, max = 2023, value = c(1960, 2023)),
+                                      br(),
+                                      fluidRow(
+                                        column(8, uiOutput("wiki3_dish_image")),
+                                        column(4, uiOutput("wiki3_dish_flag"))
+                                      )
+                                    ),
+                                    
+                                    mainPanel(
+                                      br(),
+                                      plotlyOutput("piePlot")
+                                    )
+                                  )
+                                ),
+                                # ===========================================================================
+                                # KASIA'S PART - 2
                                 tabPanel("Trade Imbalance",
                                          sidebarLayout(
                                             sidebarPanel(
@@ -167,7 +196,12 @@ ui <- tagList(
                                               uiOutput("kasia2_ingredient_ui"),
                                               
                                               # This will be the year slider, created dynamically based on ingredient
-                                              uiOutput("kasia2_year_ui")
+                                              uiOutput("kasia2_year_ui"),
+                                              br(),
+                                              fluidRow(
+                                                column(8, uiOutput("kasia2_dish_image")),
+                                                column(4, uiOutput("kasia2_dish_flag"))
+                                              )
                                             ),
                                             mainPanel(
                                               br(),
@@ -176,6 +210,8 @@ ui <- tagList(
                                             )
                                           )
                                 ),
+                                # ===========================================================================
+                                # KASIA'S PART - 3
                                 tabPanel("Global Spread Of Trade",
                                          sidebarLayout(
                                            sidebarPanel(
@@ -185,7 +221,12 @@ ui <- tagList(
                                              # Radio buttons to choose trade type (import, export or both)
                                              radioButtons("tradeType", "Select trade type:",
                                                           choices = c("Import", "Export", "Trade (Import + Export)"),
-                                                          selected = "Trade (Import + Export)")
+                                                          selected = "Trade (Import + Export)"),
+                                             br(),
+                                             fluidRow(
+                                               column(8, uiOutput("kasia3_dish_image")),
+                                               column(4, uiOutput("kasia3_dish_flag"))
+                                             )
                                            ),
                                            
                                            mainPanel(
@@ -195,6 +236,7 @@ ui <- tagList(
                                            )
                                          )
                                 )
+                              # ===========================================================================
                             )
                       )
              ),
