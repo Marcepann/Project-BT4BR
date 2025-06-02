@@ -6,7 +6,7 @@ library(dplyr)
 library(RColorBrewer)
 
 # Load data from a CSV file
-df <- read_csv("C:/Users/wikto/Downloads/spaghetti_swiat.csv")
+df <- read_csv("Bratwurst with sauerkraut.csv")
 
 # ---- UI ----
 ui <- fluidPage(

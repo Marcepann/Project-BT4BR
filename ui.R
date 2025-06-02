@@ -143,10 +143,10 @@ ui <- tagList(
                                 ),
                               )
                             ),
-                            tabPanel("Trade Imbalance",
+                            tabPanel("Trade",
                               tabsetPanel(
                                 # ===========================================================================
-                                # KASIA'S PART - 2
+                                # KASIA'S PART - 3
                                 tabPanel("Trade Imbalance",
                                          sidebarLayout(
                                             sidebarPanel(
@@ -162,6 +162,25 @@ ui <- tagList(
                                               plotlyOutput("balancePlot")
                                             )
                                           )
+                                ),
+                                tabPanel("Global Spread Of Trade",
+                                         sidebarLayout(
+                                           sidebarPanel(
+                                             # Slider to choose the time range (start and end year)
+                                             uiOutput("yearRange_ui"),
+                                             
+                                             # Radio buttons to choose trade type (import, export or both)
+                                             radioButtons("tradeType", "Select trade type:",
+                                                          choices = c("Import", "Export", "Trade (Import + Export)"),
+                                                          selected = "Trade (Import + Export)")
+                                           ),
+                                           
+                                           mainPanel(
+                                             br(),
+                                             # Output plot (dumbbell chart)
+                                             plotlyOutput("dumbbellPlot")
+                                           )
+                                         )
                                 )
                               )
                             )
@@ -185,6 +204,7 @@ ui <- tagList(
                                  h4("Wiktoria"),
                                  div(style = "text-align: center;", 
                                      img(src = "wikikot.jpg", style = "border-radius: 2%; max-width: 80%; height: auto;")),
+                                 br(),
                                  p("She was in charge of generating the", tags$b("plots"), "in RShiny and collecting the input CSV files."),
                                  downloadButton("downloadWikiApp", "Download Import/Export Plot", 
                                                 style = "white-space: normal; width: 100%; font-size: 14px"),
@@ -195,11 +215,15 @@ ui <- tagList(
                                  h4("Kasia"),
                                  div(style = "text-align: center;", 
                                      img(src = "pysiozbysio.jpg", style = "border-radius: 2%; max-width: 80%; height: auto;")),
+                                 br(),
                                  p("She was in charge of generating the", tags$b("maps"), "in RShiny and collecting the input CSV files."),
                                  downloadButton("downloadKasia1App", "Download Import/Export Map", 
                                                 style = "white-space: normal; width: 100%; font-size: 14px"),
                                  div(style = "margin-top: 10px"),
                                  downloadButton("downloadKasia2App", "Download Trade Imbalance Graph", 
+                                                style = "white-space: normal; width: 100%; font-size: 14px"),
+                                 div(style = "margin-top: 10px"),
+                                 downloadButton("downloadKasia3App", "Download Global Spread of Trade Graph", 
                                                 style = "white-space: normal; width: 100%; font-size: 14px")
                                )
                         )

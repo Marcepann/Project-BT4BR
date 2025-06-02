@@ -188,6 +188,72 @@ server <- function(input, output, session) {
         yaxis = list(title = "")
       )
   })
+  # ===========================================================================
+  # KASIA'S PART
+  # THIRD GRAPH
+  
+  output$yearRange_ui <- renderUI({
+    req(df())  # wait for data to become available
+    sliderInput("yearRange", "Select time range:",
+                min = min(as.integer(df()$Year), na.rm = TRUE),
+                max = 2013,
+                value = c(min(as.integer(df()$Year), na.rm = TRUE),
+                          min(max(as.integer(df()$Year), na.rm = TRUE), 2013)),
+                step = 1,
+                sep = "")
+  })
+  
+  output$dumbbellPlot <- renderPlotly({
+    req(input$yearRange)  
+    
+    trade_filtered <- df() %>%
+      filter(Year %in% c(input$yearRange[1], input$yearRange[2])) %>%
+      filter(
+        case_when(
+          input$tradeType == "Import" ~ Element == "Import quantity",
+          input$tradeType == "Export" ~ Element == "Export quantity",
+          input$tradeType == "Trade (Import + Export)" ~ Element %in% c("Import quantity", "Export quantity")
+        )
+      )
+    
+    summary <- trade_filtered %>%
+      group_by(Item, Year) %>%
+      summarise(n_countries = n_distinct(Area), .groups = "drop") %>%
+      pivot_wider(names_from = Year, values_from = n_countries,
+                  names_prefix = "Year_") %>% 
+      drop_na() 
+    
+    year_cols <- grep("^Year_", names(summary), value = TRUE)
+    
+    summary <- summary %>%
+      arrange(!!sym(year_cols[2])) %>%
+      mutate(Item = factor(Item, levels = Item))
+    
+    plot_ly(data = summary) %>%
+      add_segments(x = ~get(year_cols[1]),
+                   xend = ~get(year_cols[2]),
+                   y = ~Item,
+                   yend = ~Item,
+                   line = list(color = 'gray'),
+                   showlegend = FALSE) %>%
+      add_markers(x = ~get(year_cols[1]),
+                  y = ~Item,
+                  marker = list(color = "#0e668b"),
+                  text = ~paste0(input$yearRange[1], ": ", get(year_cols[1])),
+                  hoverinfo = "text",
+                  showlegend = FALSE) %>%
+      add_markers(x = ~get(year_cols[2]),
+                  y = ~Item,
+                  marker = list(color = "#c43c3f"),
+                  text = ~paste0(input$yearRange[2], ": ", get(year_cols[2])),
+                  hoverinfo = "text",
+                  showlegend = FALSE) %>%
+      layout(title = paste0("Change in Number of Trading Countries (", 
+                            input$yearRange[1], " → ", input$yearRange[2], ") — ", input$tradeType),
+             xaxis = list(title = "Number of countries"),
+             yaxis = list(title = ""),
+             hovermode = "closest")
+  })
   
   # ===========================================================================
   # WIKTORIA'S PART
@@ -292,6 +358,16 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       file.copy("data/kasia2_app.r", file)
+    },
+    contentType = "text/plain"
+  )
+  
+  output$downloadKasia3App <- downloadHandler(
+    filename = function() {
+      "data/kasia3_app.r"
+    },
+    content = function(file) {
+      file.copy("data/kasia3_app.r", file)
     },
     contentType = "text/plain"
   )
