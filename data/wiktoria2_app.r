@@ -68,8 +68,13 @@ server <- function(input, output, session) {
     top_countries <- filtered %>%
       group_by(Area) %>%
       summarise(value = sum(Value, na.rm = TRUE)) %>%
-      slice_max(order_by = value, n = 10) %>%
-      arrange(value)
+      arrange(desc(value)) %>%
+      ungroup() %>%
+      head(10)
+    
+    if (nrow(top_countries) == 0) {
+      return(plotly_empty())
+    }
     
     color <- colorRampPalette(brewer.pal(8, "Set2"))(10)
     

@@ -98,13 +98,11 @@ ui <- tagList(
              ),
              
              tabPanel("Graphs",
-                      fluidPage(  
-                        tabsetPanel(
-                          tabPanel("Import / Export",
+                      fluidPage(
                             tabsetPanel(
                               # ===========================================================================
                               # KASIA'S PART - 1
-                              tabPanel("Map",
+                              tabPanel("Import / Export Map",
                                        sidebarLayout(
                                          sidebarPanel(
                                            selectInput("kasia1_ingredient", "Choose a Product:", choices = NULL),
@@ -122,7 +120,7 @@ ui <- tagList(
                               ),
                               # ===========================================================================
                               # WIKTORIA'S PART - 1
-                              tabPanel("Plot",
+                              tabPanel("Import / Export Multi-line Plot",
                                        sidebarLayout(
                                          sidebarPanel(
                                            selectInput("wiki1_ingredient", "Choose ingredient:", choices = NULL),
@@ -141,10 +139,25 @@ ui <- tagList(
                                          )
                                        )
                                 ),
-                              )
-                            ),
-                            tabPanel("Trade",
-                              tabsetPanel(
+                                # ===========================================================================
+                                # WIKTORIA'S PART - 2
+                                tabPanel("Import / Export Barplot",
+                                         sidebarLayout(
+                                           sidebarPanel(
+                                             # Let the user pick which ingredient to look at
+                                             uiOutput("wiki2_ingredient_ui"),
+                                             # Let the user choose whether to view import or export data
+                                             selectInput("wiki2_element", "Type of data:", choices = c("Import quantity", "Export quantity")),
+                                             # This will be the year slider, created dynamically based on ingredient and export/import
+                                             uiOutput("wiki2_year_ui")
+                                           ),
+                                           
+                                           mainPanel(
+                                             br(),
+                                             plotlyOutput("barPlot", width= "900px", height = "600px")
+                                           )
+                                         )
+                                ),
                                 # ===========================================================================
                                 # KASIA'S PART - 3
                                 tabPanel("Trade Imbalance",
@@ -182,9 +195,7 @@ ui <- tagList(
                                            )
                                          )
                                 )
-                              )
                             )
-                          )
                       )
              ),
              
@@ -206,8 +217,11 @@ ui <- tagList(
                                      img(src = "wikikot.jpg", style = "border-radius: 2%; max-width: 80%; height: auto;")),
                                  br(),
                                  p("She was in charge of generating the", tags$b("plots"), "in RShiny and collecting the input CSV files."),
-                                 downloadButton("downloadWikiApp", "Download Import/Export Plot", 
+                                 downloadButton("downloadWiki1App", "Download Import/Export Multi-line Plot", 
                                                 style = "white-space: normal; width: 100%; font-size: 14px"),
+                                 div(style = "margin-top: 10px"),
+                                 downloadButton("downloadWiki2App", "Download Import/Export Barplot", 
+                                                style = "white-space: normal; width: 100%; font-size: 14px")
                                )
                         ),
                         column(4,

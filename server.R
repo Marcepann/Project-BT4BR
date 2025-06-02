@@ -102,17 +102,13 @@ server <- function(input, output, session) {
         text = ~paste(Area, "<br>", Value, "t"),
         hoverinfo = "text",
         locations = ~iso3,
-        marker = list(line = list(color = "gray", width = 0.5))
-      ) %>%
-      add_trace(
-        type = "choropleth",
-        locations = highlight_df$iso3,
-        z = highlight_df$highlight,
-        showscale = FALSE,
-        colorscale = list(c(0, 1), c("rgba(0,0,0,0)", "rgba(0,0,0,0)")),  # przezroczyste tło
-        marker = list(line = list(color = "red", width = 1)),
-        hoverinfo = "none"
-      ) %>%
+        marker = list(
+          line = list(
+            color = ifelse(filtered$iso3 == origin_country_iso3, "red", "gray"),
+            width = ifelse(filtered$iso3 == origin_country_iso3, 2, 0.5)
+          )
+        )
+      )%>%
       colorbar(title = "Quantity (t)") %>%
       layout(
         title = paste(input$kasia1_element, "of", input$kasia1_ingredient, "in", input$kasia1_year),
@@ -256,7 +252,7 @@ server <- function(input, output, session) {
   })
   
   # ===========================================================================
-  # WIKTORIA'S PART
+  # WIKTORIA'S PART - 1
   observe({
     ingredients <- sort(unique(df()$Item))
     updateSelectInput(session, "wiki1_ingredient", choices = c("All ingredients", ingredients))
@@ -341,6 +337,73 @@ server <- function(input, output, session) {
       layout(hovermode = "x unified")
   })
   # ===========================================================================
+  # WIKTORIA'S PART - 2
+  # Create a year slider that only shows years with data for the selected ingredient and element
+  output$wiki2_ingredient_ui <- renderUI({
+    req(df())  
+    
+    selectInput("wiki2_ingredient", "Choose ingredient:",
+                choices = unique(df()$Item)) 
+  })
+  
+  output$wiki2_year_ui <- renderUI({
+    req(input$wiki2_ingredient, input$wiki2_element)
+    years_available <- df() %>%
+      filter(Item == input$wiki2_ingredient, Element==input$wiki2_element) %>%
+      distinct(Year) %>%
+      arrange(Year) %>%
+      pull(Year)
+    
+    sliderInput("year", "Select Year:",
+                min = min(years_available),
+                max = max(years_available),
+                value = max(years_available),
+                step = 1,
+                sep = "",
+                ticks = TRUE)
+  })
+  
+  output$barPlot <- renderPlotly({
+    req(input$wiki2_ingredient, input$wiki2_element, input$year)
+    
+    # Filter data for the selected ingredient, element type (import/export),
+    # and years.
+    filtered <- df() %>%
+      filter(
+        Item == input$wiki2_ingredient,
+        Element == input$wiki2_element,
+        Year == input$year,
+        !is.na(Value)
+      )
+    
+    #filter top 10 countries
+    top_countries <- filtered %>%
+      group_by(Area) %>%
+      summarise(value = sum(Value, na.rm = TRUE)) %>%
+      arrange(desc(value)) %>%
+      ungroup() %>%
+      head(10)
+    
+    if (nrow(top_countries) == 0) {
+      return(plotly_empty())
+    }
+    
+    color <- colorRampPalette(brewer.pal(8, "Set2"))(10)
+    
+    # Draw bar plot showing top 10 countries by import/export of the selected ingredient in the chosen year
+    p <- ggplot(top_countries, aes(x = reorder(Area, value), y = value, fill = Area)) +
+      geom_bar(stat = "identity") +
+      scale_fill_manual(values = color) +
+      labs(
+        title = paste(input$wiki2_element, "of", input$wiki2_ingredient, "in" ,input$year),
+        x = "Country", y = "Average value (t)", fill = "Country"
+      ) +
+      theme_minimal()+
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    
+    ggplotly(p, tooltip = c("x", "y"))
+  })
+  # ===========================================================================
   # making buttons to download Kasia's code
   output$downloadKasia1App <- downloadHandler(
     filename = function() {
@@ -373,12 +436,22 @@ server <- function(input, output, session) {
   )
   
   # making button to download Wiktoria's code
-  output$downloadWikiApp <- downloadHandler(
+  output$downloadWiki1App <- downloadHandler(
     filename = function() {
-      "data/wiktoria_app.r"
+      "data/wiktoria1_app.r"
     },
     content = function(file) {
-      file.copy("data/wiktoria_app.r", file)
+      file.copy("data/wiktoria1_app.r", file)
+    },
+    contentType = "text/plain"
+  )
+  
+  output$downloadWiki2App <- downloadHandler(
+    filename = function() {
+      "data/wiktoria2_app.r"
+    },
+    content = function(file) {
+      file.copy("data/wiktoria2_app.r", file)
     },
     contentType = "text/plain"
   )
