@@ -1,6 +1,6 @@
 ### BT4BR Project: Interactive Visualisation of Ingredients of Global Dishes and Trade Data
 
-This project presents different data visualisation web app that links traditional dishes from around the world with global ingredient trade data. 
+This project presents a different data visualisation web app that links traditional dishes from around the world with global ingredient trade data. 
 Built using the R Shiny framework, the application enables users to explore how ingredients of national meals are globally imported and exported, 
 country by country, over time.
 
@@ -48,7 +48,7 @@ On the app, you must first choose a dish. Once selected, different plots related
 - **Barplot**: Top 10 importing/exporting countries of a given ingredient
 - **Piechart**: Proportion of ingredients used in the selected dish
 - **Trade Imbalance**: Difference between export and import quantities per country
-- **Global Spread**: Timeline of how the selected ingredient is traded globally
+- **Global Spread**: Timeline of how trade of an ingredient spread across countries
 
 ## How to Run the App?
 
@@ -69,4 +69,4 @@ install.packages(c(
 ))
 ```
 
-Have fun exploiting the data!
+Have fun exploring the data!
