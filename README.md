@@ -8,17 +8,17 @@ country by country, over time.
 
 ## Project structure
 
--**data** - folder with processed .csv files from FAOSTAT
+-> `data` - folder with processed .csv files from FAOSTAT
 
--**www** - folder with images of dishes and country flags 
+-> `www` - folder with images of dishes and country flags 
 
--**ui.R** - Shiny user interface
+-> `ui.R` - Shiny user interface
 
--**server.R** - Shiny server
+-> `server.R` - Shiny server
 
--**sources.md** - list of resources used
+-> `sources.md` - list of resources used
 
--**README.md**
+-> `README.md`
 
 ---
 
@@ -39,6 +39,17 @@ Datasets are available in the `data/` folder.
 
 ---
 
+## Graphs
+
+On the app, you must first choose a dish. Once selected, different plots related to that dish will become available.
+
+- **Import / Export Map**: Heat map of ingredients import/export across countries
+- **Multi-line Plot**: Line chart showing change of ingredients import/export values over time
+- **Barplot**: Top 10 importing/exporting countries of a given ingredient
+- **Piechart**: Proportion of ingredients used in the selected dish
+- **Trade Imbalance**: Difference between export and import quantities per country
+- **Global Spread**: Timeline of how the selected ingredient is traded globally
+
 ## How to Run the App?
 
 Open the project in RStudio or run in terminal:
@@ -49,7 +60,7 @@ shiny::runApp("Project-BT4BR")
 
 Make sure you have all required packages installed!
 
-In case, you can download them with this command:
+You can download them with this command:
 
 ```         
 install.packages(c(
