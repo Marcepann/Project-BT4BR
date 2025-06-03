@@ -8,17 +8,17 @@ country by country, over time.
 
 ## Project structure
 
--*data* folder - processed .csv files from FAOSTAT
+-**data** - folder with processed .csv files from FAOSTAT
 
--*www* folder - images of dishes and country flags
+-**www** - folder with images of dishes and country flags 
 
--*ui.R* - Shiny user interface
+-**ui.R** - Shiny user interface
 
--*server.R* - Shiny server
+-**server.R** - Shiny server
 
--*sources.md* - list of resources used
+-**sources.md** - list of resources used
 
--*README.md*
+-**README.md**
 
 ---
 
@@ -49,7 +49,7 @@ shiny::runApp("Project-BT4BR")
 
 Make sure you have all required packages installed!
 
-You can download them with this command:
+In case, you can download them with this command:
 
 ```         
 install.packages(c(
